@@ -1,0 +1,19 @@
+20+1	/5	=> authentification (token) Lib ? Réutilisation dans le header
+23	/5	=> déconnexion
+24	/5	=> Nouvelle publication 
+26	/5	=> Affichage des publications
+27	/5	=> Nouveau commentaire
+29	/5	=> Affichage commentaire
+30	/5	=> Vérification WCAG
+30	/5	=> Vérification
+31 - 4	/5 - 6	=> Entrainement ORAL
+4	/6	=> Passage 
+
+
+
+
+uuid
+
+
+
+function logout

@@ -9,9 +9,16 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.19.0",
     "cookie-session": "^1.4.0",
+    "dotenv": "^9.0.2",
     "express": "^4.17.1",
     "mssql": "^7.0.0",
-    "mysql": "^2.18.1"
+    "mysql": "^2.18.1",
+    "mysql2": "^2.2.5",
+    "sequelize": "^6.6.2",
+    "vuex": "^3.6.2",
+    "vuex-persistedstate": "^4.0.0-beta.3",
+    "xss": "^1.0.9"
   }
 }

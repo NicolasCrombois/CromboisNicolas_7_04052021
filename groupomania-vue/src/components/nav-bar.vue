@@ -1,19 +1,26 @@
 <template>
   <nav class="navbar navbar-toggleable-md navbar-light bg-faded">
     <div id="navbarNav">
-      <img alt="Groupomania logo" src="../assets/icon-left-font-monochrome-black.svg">
+      <img alt="Groupomania logo" src="../assets/icon-left-font-monochrome-white.svg">
       <ul id="navbar-nav">
-        <li class="nav-item"><router-link to="/register">S'enregistrer</router-link></li> |
-        <li class="nav-item"><router-link to="/login">Se connecter</router-link></li>
+        <li class="nav-item"><router-link to="/community">Chat communautaire <i class="fas fa-comments"></i></router-link></li> |
+        <li class="nav-item"><router-link to="/profile">Mon profil <i class="fas fa-user"></i></router-link></li>
+        <li class="nav-item" id="logout" @click="logout">Me déconnecter <i class="fas fa-sign-out-alt"></i></li>
       </ul>
     </div>
   </nav>
-  <router-view class="view"></router-view>
 </template>
+
 
 <script>
 export default {
-    name : 'navBar'
+    name : 'navBar',
+    methods: {
+      logout: function(){
+        sessionStorage.removeItem('user-token');
+        this.$router.push('/');
+      }
+    }
 }
 </script>
 
@@ -32,7 +39,8 @@ body{ margin : 0 }
   padding: .1rem 2.8rem;
   width: 100%;
   height: 60px;
-  background-color: #F1E6D0;
+  background-color: #172B5D;
+  box-shadow: 2px 0px 8px rgba(255, 241, 241, 0.432), -2px 0px 8px rgba(255, 241, 241, 0.432);
   
   img{
     max-width: 30%;
@@ -50,12 +58,17 @@ body{ margin : 0 }
       li {
         display: inline-block;
       }
+      #logout{
+        margin-left: 35px;
+        cursor: pointer;
+        color: white;
+      }
       a {
         font-weight: bold;
-        color: #2c3e50;
+        color: white;
 
         &.router-link-exact-active {
-          color: #B97842;
+          color: #d1515a;
         }
       }
     }
