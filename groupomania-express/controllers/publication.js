@@ -5,11 +5,6 @@ const Publication = require('../models/Publication');
 const Comment = require('../models/Comment');
 const User = require('../models/User');
 
-Publication.hasMany(Comment, {as: "Comments", foreignKey:"publicationId"});
-Comment.belongsTo(Publication, {as: "Publications", foreignKey:"publicationId"});
-
-/*Comment.hasOne(User, {as: "User", foreignKey:"id"});
-User.hasOne(Comment, {as: "Comment", foreignKey:"userId"});*/
 
 try {
     sequelize.authenticate();
@@ -38,7 +33,7 @@ exports.publish = (req, res, next) => {
 
 
 exports.publications = (req, res, next) => {
-    Publication.findAll({ order: [[ 'updatedAt', 'DESC']], include: [ { model: Comment, as :"Comments" } ]})
+    Publication.findAll({ order: [[ 'updatedAt', 'DESC']]})
     .then(publications => {
         res.status(200).json(publications);
     })

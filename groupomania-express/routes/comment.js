@@ -5,5 +5,6 @@ const auth = require('../middleware/auth');
 
 
 router.post('/publish', auth, commentCtrl.publish)
+router.get('/publication/:id', commentCtrl.publicationID)
 
 module.exports = router;

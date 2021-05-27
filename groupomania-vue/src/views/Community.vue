@@ -33,24 +33,25 @@
         <button @click="postPublication()">Je publie !</button>
       </div>
       <div class="publications">
-        <div v-for="(publication, index) in publications" v-bind:key="publication.key" class="publication" >
+        <p>publications : {{ publications }}</p>
+        <!--<div v-for="(publication) in publications" v-bind:key="publication.key" class="publication" >
           <aside class="profile">
             <i class="fas fa-user"></i>
             <div class="profile-information">
-              <p class="name">{{ publication.user_info.firstname }} {{ publication.user_info.name }}</p>
-              <p v-if="publication.user_info.status != null" class="service">Du service {{ publication.user_info.status }}</p>
-              <p class="date">Publié le {{ publication.publication_info.updatedAt }}</p>
+              <p class="name">{{ users[publication.info.userId].firstname }} {{ users[publication.info.userId].name }}</p>
+              <p v-if=" users[publication.info.userId].status != null" class="service">Du service {{ users[publication.info.userId].status }}</p>
+              <p class="date">Publié le {{ publication.info.updatedAt }}</p>
             </div>
           </aside>
           <div class="message">
             <p>
-              {{ publication.publication_info.content }}
+              {{ publication.info.content }}
             </p>
           </div>
           <div class="comments"> 
             <h3><i class="fas fa-comments"></i> Les commentaires</h3>
-            <div v-if="publication.publication_info.Comments != null">
-              <div v-for="commentUnit in publication.publication_info.Comments" v-bind:key="commentUnit.id"  class="comment">
+            <div v-if="publication.info.Comments != null">
+              <div v-for="commentUnit in publication.info.Comments" v-bind:key="commentUnit.id"  class="comment">
                 <div class="profile">
                   <div class="profile-information">
                     <p class="name">{{ users[commentUnit.userId].firstname }} {{ users[commentUnit.userId].name }}</p>
@@ -72,7 +73,7 @@
               <button @click="postComment(publication.publication_info.id, index)"><p>Envoyer !</p><i class="fas fa-location-arrow"></i></button>
             </div>
           </div>
-        </div>
+        </div>-->
       </div>
     </div>
   </div>
@@ -93,26 +94,103 @@ export default {
     publications: [],
     errors: [],
     success_info: [],
-    comment: [],
+    commentsByIdPub: [],
     infoUserComment: [],
     users: [],
     }
   },
   methods: {
-    refresh(){
+    async loadPublications(){
       this.publications = [];
-      axios.get('http://localhost:5000/api/publication/')
+      axios.defaults.headers.common['Authorization'] = sessionStorage.getItem('user-token');
+      await axios.get('http://localhost:5000/api/publication/')
       .then(res => {
-        (res.data).forEach(element => {
-            let datearray = element.updatedAt.split(/T|-|:/);
-            element.updatedAt = datearray[2]+'/'+datearray[1]+'/'+datearray[0]+' à '+datearray[3]+"h"+datearray[4];
-            axios.get('http://localhost:5000/api/auth/'+element.userId)
-            .then(userInfo => {
-              this.publications.push({publication_info: element, user_info: userInfo.data})
-            })
+        (res.data).forEach(publication => {
+
+          var reg = new RegExp("((http://)[a-zA-Z0-9/.]+)+","gi");
+          var replacedText = (publication.content).replace(reg, "<A href='$1' target=_blank>$1</A>");
+          replacedText = replacedText.replace(/(?:\r\n|\r|\n)/g, '<br>');
+          publication.content = replacedText;
+
+          const date = new Date(Date.parse(publication.updatedAt))
+          publication.updatedAt = date.getDate()+'/'+date.getMonth()+'/'+date.getFullYear()+' à '+ date.getHours()+'h'+date.getMinutes();
+
+          this.publications.push({ id : publication.id, info: {Comments: publication.Comments, content: publication.content, updatedAt: publication.updatedAt, userId: publication.userId}});
         });
       })
       .catch(error => console.log(error));
+    },
+    loadComments(){
+      this.commentsByIdPub = [];
+      (this.publications).forEach(publication => {
+        let alreadyExist = false;
+        this.commentsByIdPub.forEach(comment => {
+          if(comment.publicationId == publication.id){
+            alreadyExist = true;
+          }
+        });
+        if(!alreadyExist){
+          axios.defaults.headers.common['Authorization'] = sessionStorage.getItem('user-token');
+          axios.get('http://localhost:5000/api/comment/publication/'+publication.id)
+          .then(res => {
+            if(res.data.length>0){
+              (res.data).forEach(comment => {
+
+                const dateComment = new Date(Date.parse(comment.updatedAt))
+                comment.updatedAt = dateComment.getDate()+'/'+dateComment.getMonth()+'/'+dateComment.getFullYear()+' à '+ dateComment.getHours()+'h'+dateComment.getMinutes();
+
+                var reg = new RegExp("((http://)[a-zA-Z0-9/.]+)+","gi");
+                var replacedText = (comment.content).replace(reg, "<A href='$1' target=_blank>$1</A>");
+                replacedText = replacedText.replace(/(?:\r\n|\r|\n)/g, '<br>');
+                comment.content = replacedText;
+              });
+              this.commentsByIdPub.push({publicationId: publication.id, comments: res.data});
+            }
+          })
+          .catch(error => console.log(error));
+        }
+      })
+    },
+    async loadUsersPublication(){
+      this.users = [];
+      for (let index = 0; index < (this.publications).length; index++) {
+       if(!(this.publications[index].info.userId in this.users)){
+          await axios.get('http://localhost:5000/api/auth/'+this.publications[index].info.userId)
+          .then(userInfo => {
+            this.users[this.publications[index].info.userId] = {name: userInfo.data.name, firstname: userInfo.data.firstname, status: userInfo.data.status};
+          })
+          .catch(error => console.log(error));
+        }
+      }
+    },
+    loadUsersComment(){
+      console.log("Tableau de commentaire :")
+      console.log(this.commentsByIdPub)
+      console.log("Longueur de ce tableau :")
+      console.log(this.commentsByIdPub.length)
+
+      for (let index = 0; index < (this.commentsByIdPub).length; index++) {
+        (this.commentsByIdPub[index].comments).forEach(comment =>{
+          if(!(comment.userId in this.users)){
+            axios.get('http://localhost:5000/api/auth/'+comment.userId)
+            .then(userInfo => {
+              this.users[comment.userId] = {name: userInfo.data.name, firstname: userInfo.data.firstname, status: userInfo.data.status};
+            })
+            .catch(error => console.log(error));
+          }
+        })
+        
+      }
+        /*for (let si = 0; si < this.comments[index].length; si++) {
+          console.log(this.comments[index].comment[si])
+          if(!(this.comments[index].comment[si].userId in this.users)){
+              await axios.get('http://localhost:5000/api/auth/'+this.comments[index].comment[si].userId)
+              .then(userInfo => {
+                this.users[this.comments[index].comment[si].userId] = {name: userInfo.data.name, firstname: userInfo.data.firstname, status: userInfo.data.status};
+              })
+              .catch(error => console.log(error));
+            }
+        }*/
     },
     postPublication(){
       this.errors = [];
@@ -150,42 +228,16 @@ export default {
     }
   },
   mounted() {
-    axios.defaults.headers.common['Authorization'] = sessionStorage.getItem('user-token');
-    axios.get('http://localhost:5000/api/publication/')
-    .then(res => {
-      (res.data).forEach(publication => {
-
-          var reg = new RegExp("((http://)[a-zA-Z0-9/.]+)+","gi");
-          var replacedText = (publication.content).replace(reg, "<A href='$1' target=_blank>$1</A>");
-
-          reg = new RegExp("((https://)[a-zA-Z0-9/.]+)+","gi");
-          replacedText = (publication.content).replace(reg, "<A href='$1' target=_blank>$1</A>");
-
-          publication.content = replacedText;
-
-          let datearray = publication.updatedAt.split(/T|-|:/);
-          publication.updatedAt = datearray[2]+'/'+datearray[1]+'/'+datearray[0]+' à '+datearray[3]+"h"+datearray[4];
-
-
-          axios.get('http://localhost:5000/api/auth/'+publication.userId)
-          .then(userInfo => {
-            this.publications.push({publication_info: publication, user_info: userInfo.data})
-          })
-          .catch(error => console.log(error));
-          (publication.Comments).forEach(comment => {
-            let datearray = comment.updatedAt.split(/T|-|:/);
-            comment.updatedAt = datearray[2]+'/'+datearray[1]+'/'+datearray[0]+' à '+datearray[3]+"h"+datearray[4];
-            const keyuser = comment.userId;
-            if(!(keyuser in this.users)){
-              axios.get('http://localhost:5000/api/auth/'+comment.userId)
-              .then(userInfo => {
-                this.users[keyuser] = userInfo.data
-              })
-            }
-          });
-      });
+    this.loadPublications()
+    .then(() => {this.loadComments()})
+    //.then(() => {this.loadUsersPublication()})
+    .then(() => {this.loadUsersComment()})
+    .then(()=> {
+      console.log('users')
+      console.log(this.users)
+      console.log('comments')
+      console.log(this.commentsByIdPub)
     })
-    .catch(error => console.log(error));
   }
 }
 </script>

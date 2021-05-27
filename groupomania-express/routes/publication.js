@@ -5,6 +5,6 @@ const auth = require('../middleware/auth');
 
 
 router.post('/publish', auth, publicationCtrl.publish)
-router.get('/'/*, auth*/, publicationCtrl.publications)
+router.get('/', auth, publicationCtrl.publications)
 
 module.exports = router;

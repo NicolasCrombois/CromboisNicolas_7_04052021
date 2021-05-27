@@ -23,3 +23,14 @@ exports.publish = (req, res, next) => {
     .then(() => res.status(200).json({ message : "Comment Posted" }))
     .catch(error => res.status(500).json({ message : error }))
 };
+
+
+exports.publicationID = (req, res, next) => {
+    Comment.findAll({ where: {publicationId: req.params.id }, order: [[ 'updatedAt', 'DESC']]})
+    .then(publications => {
+        res.status(200).json(publications);
+    })
+    .catch(error => {
+        res.status(500).json({ message: error });
+    });
+};
