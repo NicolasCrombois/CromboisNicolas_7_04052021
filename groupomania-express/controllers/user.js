@@ -4,6 +4,8 @@ const xss = require('xss');
 const { v4 : uuidv4 } = require('uuid');
 
 const User = require('../models/User');
+const Publication = require('../models/Publication');
+const Comment = require('../models/Comment');
 
 try {
     sequelize.authenticate();
@@ -51,32 +53,37 @@ exports.login = (req, res, next) => {
     User.findOne({ where: {mail: req.body.email}})
     .then(user => {
         if(!user){
-            return res.status(401).json({ 
-                message : "non-existent account" 
-            });
+            res.status(401).json({ message: "Les identifiants saisies ne sont pas corrects" });
+            next();
         }
-        bcrypt.compare(xss(req.body.password), user.password)
+        else{
+            bcrypt.compare(xss(req.body.password), user.password)
             .then( validation => {
                 if(!validation){
-                    return res.status(403)
+                    res.status(401).json({ message: "Les identifiants saisies ne sont pas corrects" });
+                    next();
+                }else{
+                    res.status(200).json({
+                        userId: user.id,
+                        token: jsonwebtoken.sign(
+                            { userId : user.id },
+                            't0Ken_Generator-K3y_',
+                            { expiresIn: '24h' }
+                        ),
+                        userStatus: user.status,
+                        userName: user.name,
+                        userFirstname: user.firstname,
+                    });
                 }
-                res.status(200).json({
-                    userId: user.id,
-                    token: jsonwebtoken.sign(
-                        { userId : user.id },
-                        't0Ken_Generator-K3y_',
-                        { expiresIn: '24h' }
-                    )
-                });
             })
             .catch(error => res.status(500).json({ message: error }));
+        }
     })
     .catch(error => res.status(500).json({ message: error }));
 };
 
 
 exports.profile = (req, res, next) => {
-    console.log(req.params.id)
     User.findOne({ where: {id: req.params.id}})
     .then(user => {
         userInfo = {
@@ -88,3 +95,34 @@ exports.profile = (req, res, next) => {
     })
     .catch(error => res.status(500).json({ message: error }));
 };
+
+
+exports.delete = (req, res, next) => {
+    console.log(req.params.id)  
+   User.findOne({
+        where : { id: req.params.id }
+    })
+    .then(user => {
+        user.destroy()
+    })
+    .then(() => {
+        Publication.findAll({
+            where : { userId : req.params.id }
+        })
+        .then(publications =>{
+             publications.forEach(publication => {
+                Comment.destroy({
+                    where : { publicationId : publication.id }
+                })
+                publication.destroy();
+            });
+            res.status(200).json("Publication supprimée !");
+        })
+        .catch(error => {
+            res.status(401).json({ message: error });
+        })
+    })
+    .catch(error => {
+        res.status(500).json({ message: error });
+    });
+}

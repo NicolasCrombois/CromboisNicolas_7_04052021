@@ -26,11 +26,28 @@ exports.publish = (req, res, next) => {
 
 
 exports.publicationID = (req, res, next) => {
-    Comment.findAll({ where: {publicationId: req.params.id }, order: [[ 'updatedAt', 'DESC']]})
+    Comment.findAll({ where: {publicationId: req.params.id } , order: [[ 'updatedAt', 'ASC']]})
     .then(publications => {
+        console.log(publications)
         res.status(200).json(publications);
     })
     .catch(error => {
         res.status(500).json({ message: error });
-    });
+        });
 };
+
+
+
+
+exports.delete = (req, res, next) => {
+    Comment.findOne({
+        where : { id: req.params.id }
+    })
+    .then(publication => {
+        publication.destroy()
+        res.status(200).json("Commentaire supprimé !");
+    })
+    .catch(error => {
+        res.status(500).json({ message: error });
+    });
+}

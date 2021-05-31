@@ -3,17 +3,14 @@
     <div class="container-fluid">
       <NavBar />
       <div id="head-body">
-        <h1>Le t'Chat</h1>
-          <p>Vous êtes dans l'onglet communauté, ici vous y retrouverez les publications de vos collègues à propos de divers sujet.<br/>
-          Et vous pouvez, vous aussi, échanger avec vos collègues en publiant des articles ou en les commentant</p>
+        <h1>Votre Profil</h1>
       </div>
-      <div id="form">
+      <div id="profile">
         <div class="container-errors" v-if="success_info.length != 0">
           <div class="content-success">
             <div id="success-logo"><i class="fas fa-check"></i></div>
             <ul>
-              <li v-for="success in success_info" :key="success.msg" class="align-middle text-center">
-                {{ success.msg }}
+              <li v-for="success in success_info" :key="success.msg" class="align-middle text-center" v-html=success.msg>
               </li>
             </ul>
           </div>
@@ -28,58 +25,26 @@
             </ul>
           </div>
         </div>
-        <div class="icon"><i class="far fa-envelope"></i> <p>Votre message :</p></div>
-        <textarea class="inputTable" placeholder="Votre message ..." v-model="message"></textarea>
-        <button @click="postPublication()">Je publie !</button>
-      </div>
-      <div class="publications">
-        <div v-if="publications != []">
-          <div v-for="(publication, index) in publications" v-bind:key="publication.key" class="publication" >
-            <div class="buttonDelete" @click="deletePub(publication.id)" v-if="userStatus=='RH'"><i class="fas fa-trash-alt"></i></div>
-            <aside class="profile">
-              <i class="fas fa-user"></i>
-              <div class="profile-information" v-if="users[publication.info.userId]">
-                <p class="name">{{ users[publication.info.userId].firstname }} {{ users[publication.info.userId].name }}</p>
-                <p v-if=" users[publication.info.userId].status != null" class="service">Du service {{ users[publication.info.userId].status }}</p>
-                <p class="date">Publié le {{ publication.info.updatedAt }}</p>
-              </div>
-            </aside>
-            <div class="message">
-              <p v-html="publication.info.content">
-              </p>
-            </div>
-            <div class="comments"> 
-              <h3><i class="fas fa-comments"></i> Les commentaires</h3>
-              <div v-if="publication.info.Comments != null">
-                <div v-for="commentUnit in publication.info.Comments" v-bind:key="commentUnit.id"  class="comment">
-                  <div class="buttonDelete" @click="deleteComment(commentUnit.id)" v-if="userStatus=='RH'"><i class="fas fa-trash-alt"></i></div>
-                  <div class="profile">
-                    <div class="profile-information" v-if="users[commentUnit.userId] != null">
-                      <p v-if="users[commentUnit.userId].name != null && users[commentUnit.userId].firstname != null" class="name">{{ users[commentUnit.userId].firstname }} {{ users[commentUnit.userId].name }}</p>
-                      <p v-if="users[commentUnit.userId].status != null" class="service">Du service {{ users[commentUnit.userId].status }}</p>
-                    </div>
-                    <i class="fas fa-user"></i>
-                  </div>
-                  <div class="comment-container">
-                    <p class="comment-container-message" v-html="commentUnit.content">
-                    </p>
-                    <p class="comment-container-date">{{ commentUnit.updatedAt }}</p>
-                  </div>
-                </div>
-              </div>
-              <div class="form-comment">
-                <label>Ajouter votre commentaires:</label>
-                <textarea v-model="comment[index]" name="comment"></textarea>
-                <button @click="postComment(publication.id, index)"><i class="fas fa-location-arrow"></i></button>
-              </div>
+        <div class="content-profile">
+          <div>
+            <aside class="icon"><div><i class="fas fa-user"></i></div></aside>
+            <div class="content-profile-informations">
+              <h2> Informations du compte: </h2>
+              <ul>
+                <li>
+                  Prénom : {{ firstname }}
+                </li>
+                <li>
+                  Nom :  {{ name }}
+                </li>
+                <li>
+                  Du service :  {{ service }}
+                </li>
+              </ul>
             </div>
           </div>
-        </div>
-        <div>
-          <p id="no-publication">
-            Il n'y a pas de publication pour le moment ... 
-            <br>Sois le premier a poster ! 
-          </p>
+          <p>Tu souhaites supprimer votre compte ? Cliques sur le button ci-dessous</p>
+          <button @click="deleteUser()">Supprimer mon compte !</button>
         </div>
       </div>
     </div>
@@ -93,149 +58,37 @@ import Footer from '../components/footer';
 import axios from 'axios';
 
 export default {
-  name: 'Community',
+  name: 'Profile',
   components: {
     NavBar,
     Footer
   },
   data() {
     return{
-    message: '',
-    publications: [],
     errors: [],
     success_info: [],
-    comment: [],
-    infoUserComment: [],
-    users: [],
-    userStatus: sessionStorage.getItem('user-status')
+    firstname: sessionStorage.getItem('user-firstname'),
+    name: sessionStorage.getItem('user-name'),
+    service: sessionStorage.getItem('user-status'),
+    iduser: sessionStorage.getItem('user-id')
     }
   },
   methods: {
-    async loadPublications(){
-      this.publications = [];
-      axios.defaults.headers.common['Authorization'] = sessionStorage.getItem('user-token');
-      await axios.get('http://localhost:5000/api/publication/')
-      .then(res => {
-        (res.data).forEach(publication => {
-
-          var reg = new RegExp("((http://)[a-zA-Z0-9/.]+)+","gi");
-          var replacedText = (publication.content).replace(reg, "<A href='$1' target=_blank>$1</A>");
-          replacedText = replacedText.replace(/(?:\r\n|\r|\n)/g, '<br>');
-          publication.content = replacedText;
-
-          const date = new Date(Date.parse(publication.updatedAt))
-          publication.updatedAt = ('0' + date.getDate()).slice(-2) + '/' + ('0' + (date.getMonth()+1)).slice(-2)+'/'+date.getFullYear()+' à '+ date.getHours()+'h'+('0' + date.getMinutes()).slice(-2) ;
-
-          publication.Comments.forEach(comment => {
-            
-            const dateComment = new Date(Date.parse(comment.updatedAt))
-            comment.updatedAt = ('0' + dateComment.getDate()).slice(-2) + '/' + ('0' + (dateComment.getMonth()+1)).slice(-2)+'/'+dateComment.getFullYear()+' à '+ dateComment.getHours()+'h'+('0' + dateComment.getMinutes()).slice(-2) ;
-
-            var reg = new RegExp("((http://)[a-zA-Z0-9/.]+)+","gi");
-            var replacedText = (comment.content).replace(reg, "<A href='$1' target=_blank>$1</A>");
-            replacedText = replacedText.replace(/(?:\r\n|\r|\n)/g, '<br>');
-            comment.content = replacedText;
-
-          });
-          this.publications.push({ id : publication.id, info: {Comments: publication.Comments, content: publication.content, updatedAt: publication.updatedAt, userId: publication.userId}});
-        });
-      })
-      .catch(error => console.log(error));
-    },
-    loadUsers(){
-      this.users = [];
-      for (let index = 0; index < (this.publications).length; index++) {
-       if(!(this.publications[index].info.userId in this.users)){
-          axios.get('http://localhost:5000/api/auth/'+this.publications[index].info.userId)
-          .then(userInfo => {
-            this.users[this.publications[index].info.userId] = {name: userInfo.data.name, firstname: userInfo.data.firstname, status: userInfo.data.status};
-          })
-          .catch(error => console.log(error));
-        }
-        (this.publications[index].info.Comments).forEach(comment => {
-          if(!(comment.userId in this.users)){
-            axios.get('http://localhost:5000/api/auth/'+comment.userId)
-            .then(userInfo => {
-              this.users[comment.userId] = {name: userInfo.data.name, firstname: userInfo.data.firstname, status: userInfo.data.status};
-            })
-            .catch(error => console.log(error));
-          }
-        });
-      }
-    },
-    postPublication(){
-      this.errors = [];
-      this.success_info = []
-      if (this.message == ''){
-        this.errors.push({msg : 'Aucun message n\'a été saisi'})
-      }
-      if(this.errors.length == 0){
-        axios.defaults.headers.common['Authorization'] = sessionStorage.getItem('user-token');
-        axios.post('http://localhost:5000/api/publication/publish', {content: this.message, userId: sessionStorage.getItem('user-id')})
-        .then ((res) => {
-          if(res.data.message == "Message Posted"){
-            this.success_info.push({msg: 'Votre message vient être publié !'})
-          }/*
-          setTimeout(
-              function(){
-                this.$router.go(0);
-              }
-               ,1000);*/
-          this.$router.go(0);
-        })
-        .catch((error) => {
-          this.errors.push({msg: error})
-        })
-      }
-    },
-    postComment(publicationId, index){
-      if(this.errors.length == 0){
-        axios.defaults.headers.common['Authorization'] = sessionStorage.getItem('user-token');
-        axios.post('http://localhost:5000/api/comment/publish', {publicationId: publicationId, content: this.comment[index], userId: sessionStorage.getItem('user-id')})
-        .then (() =>{
-          this.$router.go(0);
-        })
-        .catch((error) => {
-          this.errors.push({msg: error})
-        })
-      }
-    },
-    refresh(){
-      this.message = '';
-      this.errors = [];
-      this.success_info = [];
-      this.comment = [];
-      this.loadPublications()
+    deleteUser(){
+      axios.post('http://localhost:5000/api/auth/delete'+this.iduser)
       .then(() => {
-        this.loadUsers()
+            this.success_info.push({msg: 'Votre compte a bien été supprimé !<br>Vous allez être déconnecté dans 5 secondes ...'})
       })
-
-    },
-    deletePub(publicationId){
-      axios.defaults.headers.common['Authorization'] = sessionStorage.getItem('user-token');
-      axios.post('http://localhost:5000/api/publication/delete' + publicationId)
-      .then (() =>{
-        this.$router.go(0);
+      .then(() => {
+        sessionStorage.removeItem('user-token');
+        sessionStorage.removeItem('user-id');
+        sessionStorage.removeItem('user-status');
+        sessionStorage.removeItem('user-name');
+        sessionStorage.removeItem('user-firstname');
+        setTimeout( () => this.$router.push({ path: '/' }), 5000);
       })
-      .catch((error) => {
-        this.errors.push({msg: error})
-      })
-
-    },
-    deleteComment: function(commentId){
-      axios.defaults.headers.common['Authorization'] = sessionStorage.getItem('user-token');
-      axios.post('http://localhost:5000/api/comment/delete' + commentId)
-      .then (() =>{
-        this.$router.go(0);
-      })
-      .catch((error) => {
-        this.errors.push({msg: error})
-      })
-
+      .catch(error => this.errors.push({msg: error}));
     }
-  },
-  mounted() {
-    this.refresh()
   }
 }
 </script>
@@ -278,7 +131,7 @@ export default {
           font-family: "OpenSans-SM";
         }
       }
-      #form{
+      #profile{
         width: 95%;
         margin: auto;
         padding: 20px 0;

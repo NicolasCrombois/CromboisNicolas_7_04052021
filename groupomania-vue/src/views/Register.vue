@@ -5,8 +5,7 @@
         <div id="success-logo"><i class="fas fa-check"></i></div>
         <p>Félicitation !</p>
         <ul>
-          <li v-for="success in success_info" :key="success.msg" >
-            {{ success.msg }}
+          <li v-for="success in success_info" :key="success.msg" v-html=success.msg>
           </li>
         </ul>
       </div>
@@ -113,11 +112,10 @@ export default {
       
       
       if(this.errors.length == 0){
-        console.log(this.user.id);
         axios.post('http://localhost:5000/api/auth/signup', { email: this.user.email, password: this.user.password, firstname: this.user.firstname, name: this.user.name })
         .then ((res) => {
           if(res.data.message == "User created"){
-            this.success_info.push({msg: 'Votre compte à bien été créé '+this.user.firstname + ' !'})
+            this.success_info.push({msg: 'Votre compte à bien été créé '+this.user.firstname + ' !<br>Vous aller être redirigé vers la page de connexion dans 5 secondes ...'})
             setTimeout(
               function(){
                 this.$router.push({ path: '/login' });
@@ -156,8 +154,7 @@ export default {
   }
   .form-container{
     position: relative;
-    height: 800px;
-    max-height: 98vh;
+    height: 100vh;
     margin: auto;
     .container-errors{
       width: 100%;

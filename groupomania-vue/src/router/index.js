@@ -1,8 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
-import Logout from '../views/Logout.vue'
 import Community from '../views/Community.vue'
+import Profile from '../views/Profile.vue'
 import VueRouteMiddleware from 'vue-route-middleware';
 
 const routes = [
@@ -23,10 +23,6 @@ const routes = [
         }
       }
     }
-  },{
-    path: '/logout',
-    name: 'Logout',
-    component: Logout
   },
   {
     path: '/register',
@@ -36,6 +32,18 @@ const routes = [
     path: '/community',
     name: 'Community',
     component: Community,
+    meta: {
+      middleware: (to, from, next) => {
+        let token = sessionStorage.getItem('user-token');
+        if(!token){
+          next({ name: 'Login' });
+        }
+      }
+    }
+  },{
+    path: '/profile',
+    name: 'Profile',
+    component: Profile,
     meta: {
       middleware: (to, from, next) => {
         let token = sessionStorage.getItem('user-token');

@@ -60,14 +60,22 @@ import axios from 'axios';
         const token = res.data.token;
         sessionStorage.setItem('user-token', token);
         sessionStorage.setItem('user-id', res.data.userId);
+        sessionStorage.setItem('user-status', res.data.userStatus);
+        sessionStorage.setItem('user-name', res.data.userName);
+        sessionStorage.setItem('user-firstname', res.data.userFirstname);
         this.$router.push('/');
+        console.log(res.data)
       })
       .catch((error) => {
-        if(error.response.status == 401){
-          this.errors.push({ msg : "Le compte choisi n'existe pas !"})
-        }
-        if(error.response.status == 405){
-          this.errors.push({ msg : "Le mot de passe n'est pas correct !"})
+        if(error.response){
+          if(error.response.status == 401){
+            this.errors.push({ msg : error.response.data.message })
+          }
+          else {
+            this.errors.push({ error : error })
+          }
+        }else{
+          console.log(error)
         }
       })
     }
@@ -79,8 +87,7 @@ import axios from 'axios';
 <style scoped lang="scss">
   .form-container{
     position: relative;
-    height: 800px;
-    max-height: 98vh;
+    height: 100vh;
     margin: auto;
     .container-errors{
       width: 100%;

@@ -3,7 +3,7 @@
     <div id="navbarNav">
       <img alt="Groupomania logo" src="../assets/icon-left-font-monochrome-white.svg">
       <ul id="navbar-nav">
-        <li class="nav-item"><router-link to="/community">Chat communautaire <i class="fas fa-comments"></i></router-link></li> |
+        <li class="nav-item"><router-link to="/community">Chat communautaire <i class="fas fa-comments"></i></router-link></li> 
         <li class="nav-item"><router-link to="/profile">Mon profil <i class="fas fa-user"></i></router-link></li>
         <li class="nav-item" id="logout" @click="logout">Me déconnecter <i class="fas fa-sign-out-alt"></i></li>
       </ul>
@@ -18,6 +18,10 @@ export default {
     methods: {
       logout: function(){
         sessionStorage.removeItem('user-token');
+        sessionStorage.removeItem('user-id');
+        sessionStorage.removeItem('user-status');
+        sessionStorage.removeItem('user-name');
+        sessionStorage.removeItem('user-firstname');
         this.$router.push('/');
       }
     }
@@ -55,7 +59,8 @@ body{ margin : 0 }
       padding: 0;
       list-style-type: none;
       margin-top: 6px;
-      li {
+      .nav-item {
+        margin: 0 6px;
         display: inline-block;
       }
       #logout{
@@ -71,6 +76,29 @@ body{ margin : 0 }
           color: #d1515a;
         }
       }
+    }
+  }
+}
+@media screen and (max-width: 768px) {
+  .navbar{
+    height: 90px;
+    #navbarNav{
+      #navbar-nav{
+        float: none;
+      }
+      img{
+        float: none;
+        margin-bottom: 5px;
+      }
+    }
+  }
+}
+@media screen and (max-width: 768px) {
+  .navbar{
+    height: 110px;
+    padding: .1rem 1.1rem;
+    img{
+      max-width: 66%;
     }
   }
 }
