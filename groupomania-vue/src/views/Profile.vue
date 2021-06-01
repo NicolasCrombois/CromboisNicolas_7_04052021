@@ -27,7 +27,7 @@
         </div>
         <div class="content-profile">
           <div>
-            <aside class="icon"><div><i class="fas fa-user"></i></div></aside>
+            <aside class="icon"><i class="fas fa-user"></i></aside>
             <div class="content-profile-informations">
               <h2> Informations du compte: </h2>
               <ul>
@@ -75,7 +75,7 @@ export default {
   },
   methods: {
     deleteUser(){
-      axios.post('http://localhost:5000/api/auth/delete'+this.iduser)
+      axios.delete('http://localhost:5000/api/auth/'+this.iduser)
       .then(() => {
             this.success_info.push({msg: 'Votre compte a bien été supprimé !<br>Vous allez être déconnecté dans 5 secondes ...'})
       })
@@ -132,12 +132,9 @@ export default {
         }
       }
       #profile{
-        width: 95%;
+        width: 100%;
         margin: auto;
         padding: 20px 0;
-        display: flex;
-        flex-wrap: wrap;
-        
         .container-errors{
           width: 100%;
           top: 4vh;
@@ -243,175 +240,56 @@ export default {
           bottom: 230px;
           left: calc(50% - 85px);
         }
-      }
-      .publications{
-        background-color: #e2e2e2;
-        #no-publication{
-          margin: 0;
-          padding: 50px;
-          font-family: "OpenSans-SM";
-          font-size: 18px;
-          font-style: oblique;
-        }
-        .publication{
-          position: relative;
+        .content-profile{
+          width: 80%;
+          margin: auto;
+          div {
           display: flex;
           flex-wrap: wrap;
-          justify-content: space-between;
-          padding: 55px 15px;
-          .buttonDelete{
-            position: absolute;
-            font-size: 20px;
-            color: red;
-            top: 15px;
-            right: 15px;
-          }
-          &::before {
-            content: "";
-            position: absolute;
-            display: block;
-            width: 80%;
-            height: 1px;
-            background: rgb(151, 151, 151);
-            left: calc(10%);
-            top: 1px;
-          }
-          &::after {
-            content: "";
-            position: absolute;
-            display: block;
-            width: 90%;
-            height: 2px;
-            background: rgb(151, 151, 151);
-            left: calc(5%);
-            bottom: 1px;
-          }
-          &:last-child::after {
-            display: none;
-          }
-          &:nth-child(even){
-            background-color: #f3f3f3;
-          }
-          .profile{
-            width: 20%;
-            display: flex;
-            flex-wrap: wrap;
-            i{
-              font-size: 64px;
-              margin: auto;
-              width: 100%;
-              margin-bottom: 20px;
-            }
-            .name{
-              width: 100%;
-              margin: 0;
-              color: #862e34;
-              font-family: "OpenSans-B";
-            }
-            .service{
-              width: 100%;
-              font-family: "OpenSans-SM";
-              color: #2c3e50;
-            }
-            .date{
-              font-family: "OpenSans-R";
-              color: #2c3e50;
-            }
-          }
-          .message{
-            width: 75%;
-            background-color: white;
-            border-radius: 20px;
-            padding: 20px;
-            text-align: left;
-            font-family: "Roboto-R";
-            box-shadow: 0px 0px 5px #818181;
-            overflow-wrap: break-word;
-            word-wrap: break-word;
-            hyphens: auto;
-          }
-          .comments{
-            width: 100%;
-            padding-top: 25px;
-            h3 {
-              color: #862e34;
-              margin: 25px 0;
-            }
-            .comment{
-              padding: 15px 0;
-              display: flex;
-              position: relative;
-              .profile{
-                margin-left: 10%;
-                width: 32%;
-                flex-wrap: nowrap;
-                i{
-                  font-size: 50px;
-                  color: #D15F66;
-                  width: auto;
-                  margin: 0 auto;
-                }
-              }
-              &-container{
-                max-width: 56%;
-                padding-top: 25px;
-                &-message{
-                  padding: 10px;
-                  background-color: white;
-                  border-radius: 0px 25px 25px 25px;
-                  box-shadow: 3px 5px 5px #818181;
-                  overflow-wrap: break-word;
-                  word-wrap: break-word;
-                  hyphens: auto;
-                }
-                &-date{
-                  float: right;
-                }
-              }
-            }
-          }
-          .form-comment{
-            display: flex;
-            label{
-              font-family: "OpenSans-SM";
-              float: right;
-              margin: auto 0;
-              padding: 0 15px;
-              vertical-align: middle;
-              max-width: 370px;
-              min-width: 280px;
+            aside {
               width: 20%;
-            }
-            textarea{
-              width: 60%;
-              background-color: white;
-              border-radius: 20px;
-              padding: 20px;
-              text-align: left;
-            }
-            button{
               display: flex;
-              flex-wrap: wrap;
-              width: 20%;
-              border: none;
-              background-color: rgba($color: #000000, $alpha: 0);
-              color: #2c3e50;
-              &:hover{
-                color: #455c74;
-              }
-              i{
-                display: inline-block;
-                width: 100%;
-                font-size: 46px;
+              align-items: center;
+              height: 150px;
+              i {
+                font-size: 60px;
                 margin: auto;
               }
-              p{
-                display: inline-block;
-                width: 100%;
-                margin: 0;
+            }
+          }
+          p {
+            margin-top: 15px;
+          }
+          &-informations{
+            display: flex;
+            flex-wrap: wrap;
+            width: 79%;
+            h2{
+              width: 100%;
+              font-family: "OpenSans-SM";
+            }
+            ul{
+              margin: 0 auto;
+              padding: 0;
+              list-style-type: none;
+              text-align: left;
+              width: 60%;
+              li{
+                font-size: 16px;
+                font-family: "Roboto-R";
               }
             }
           }
+        button{
+          background-color: #862e34;
+          color: white;
+          font-size: 16px;
+          padding: 10px 45px;
+          margin: 8px auto;
+          border-radius: 25px;
+          bottom: 230px;
+          left: calc(50% - 85px);
+        }
         }
       }
     }

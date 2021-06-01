@@ -7,6 +7,6 @@ const authadmin = require('../middleware/authadmin');
 
 router.post('/publish', auth, publicationCtrl.publish);
 router.get('/', auth, publicationCtrl.publications);
-router.post('/delete:id', authadmin, publicationCtrl.delete);
+router.delete('/:id', authadmin, publicationCtrl.delete);
 
 module.exports = router;

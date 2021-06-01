@@ -98,8 +98,7 @@ exports.profile = (req, res, next) => {
 
 
 exports.delete = (req, res, next) => {
-    console.log(req.params.id)  
-   User.findOne({
+    User.findOne({
         where : { id: req.params.id }
     })
     .then(user => {

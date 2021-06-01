@@ -26,7 +26,7 @@ exports.publish = (req, res, next) => {
         content: xss(req.body.content), 
         userId: req.body.userId,
     })
-    .then(() => res.status(200).json({ message : "Message Posted" }))
+    .then(() => res.status(201).json({ message : "Message Posted" }))
     .catch(error => res.status(500).json({ message : error }))
 };
 
@@ -55,8 +55,8 @@ exports.delete = (req, res, next) => {
         Comment.destroy({
             where : { publicationId : req.params.id }
         })
-        res.status(200).json("Publication supprimée !");
     })
+    .then(() => res.status(201).json({ message : " Publication supprimée !" }))
     .catch(error => {
         res.status(500).json({ message: error });
     });

@@ -33,7 +33,7 @@
         <button @click="postPublication()">Je publie !</button>
       </div>
       <div class="publications">
-        <div v-if="publications != []">
+        <div v-if="publications.length > 0">
           <div v-for="(publication, index) in publications" v-bind:key="publication.key" class="publication" >
             <div class="buttonDelete" @click="deletePub(publication.id)" v-if="userStatus=='RH'"><i class="fas fa-trash-alt"></i></div>
             <aside class="profile">
@@ -41,6 +41,7 @@
               <div class="profile-information" v-if="users[publication.info.userId]">
                 <p class="name">{{ users[publication.info.userId].firstname }} {{ users[publication.info.userId].name }}</p>
                 <p v-if=" users[publication.info.userId].status != null" class="service">Du service {{ users[publication.info.userId].status }}</p>
+                <p v-else class="service">Service non renseigné </p>
                 <p class="date">Publié le {{ publication.info.updatedAt }}</p>
               </div>
             </aside>
@@ -56,7 +57,12 @@
                   <div class="profile">
                     <div class="profile-information" v-if="users[commentUnit.userId] != null">
                       <p v-if="users[commentUnit.userId].name != null && users[commentUnit.userId].firstname != null" class="name">{{ users[commentUnit.userId].firstname }} {{ users[commentUnit.userId].name }}</p>
+                      <p v-else class="name">Utilisateur supprimé</p>
                       <p v-if="users[commentUnit.userId].status != null" class="service">Du service {{ users[commentUnit.userId].status }}</p>
+                      <p v-else class="service">Service non renseigné </p>
+                    </div>
+                    <div class="profile-information" v-else>
+                      <p class="name">Utilisateur supprimé</p>
                     </div>
                     <i class="fas fa-user"></i>
                   </div>
@@ -75,7 +81,7 @@
             </div>
           </div>
         </div>
-        <div>
+        <div v-else>
           <p id="no-publication">
             Il n'y a pas de publication pour le moment ... 
             <br>Sois le premier a poster ! 
@@ -142,11 +148,11 @@ export default {
       })
       .catch(error => console.log(error));
     },
-    loadUsers(){
+    async loadUsers(){
       this.users = [];
       for (let index = 0; index < (this.publications).length; index++) {
        if(!(this.publications[index].info.userId in this.users)){
-          axios.get('http://localhost:5000/api/auth/'+this.publications[index].info.userId)
+          await axios.get('http://localhost:5000/api/auth/'+this.publications[index].info.userId)
           .then(userInfo => {
             this.users[this.publications[index].info.userId] = {name: userInfo.data.name, firstname: userInfo.data.firstname, status: userInfo.data.status};
           })
@@ -175,12 +181,7 @@ export default {
         .then ((res) => {
           if(res.data.message == "Message Posted"){
             this.success_info.push({msg: 'Votre message vient être publié !'})
-          }/*
-          setTimeout(
-              function(){
-                this.$router.go(0);
-              }
-               ,1000);*/
+          }
           this.$router.go(0);
         })
         .catch((error) => {
@@ -209,11 +210,10 @@ export default {
       .then(() => {
         this.loadUsers()
       })
-
     },
     deletePub(publicationId){
       axios.defaults.headers.common['Authorization'] = sessionStorage.getItem('user-token');
-      axios.post('http://localhost:5000/api/publication/delete' + publicationId)
+      axios.delete('http://localhost:5000/api/publication/' + publicationId)
       .then (() =>{
         this.$router.go(0);
       })
@@ -224,7 +224,7 @@ export default {
     },
     deleteComment: function(commentId){
       axios.defaults.headers.common['Authorization'] = sessionStorage.getItem('user-token');
-      axios.post('http://localhost:5000/api/comment/delete' + commentId)
+      axios.delete('http://localhost:5000/api/comment/delete' + commentId)
       .then (() =>{
         this.$router.go(0);
       })
