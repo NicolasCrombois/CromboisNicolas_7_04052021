@@ -1,7 +1,8 @@
 <template>
   <nav class="navbar navbar-toggleable-md navbar-light bg-faded">
     <div id="navbarNav">
-      <img alt="Groupomania logo" src="../assets/icon-left-font-monochrome-white.svg">
+      <img alt="Groupomania logo" class="logo_desktop" src="../assets/icon-left-font-monochrome-white.svg">
+      <img alt="Groupomania logo" class="logo_mobile" src="../assets/icon.png">
       <ul id="navbar-nav">
         <li class="nav-item"><router-link to="/community">Chat communautaire <i class="fas fa-comments"></i></router-link></li> 
         <li class="nav-item"><router-link to="/profile">Mon profil <i class="fas fa-user"></i></router-link></li>
@@ -79,9 +80,41 @@ body{ margin : 0 }
     }
   }
 }
+@media screen and (max-width: 525px) {
+  .logo_desktop{
+    display: none;
+  }
+  .logo_mobile{
+    display: block;
+    position: absolute;
+    left: 30px;
+    top: 10px;
+  }
+  .navbar{
+    #navbarNav{
+      #navbar-nav{
+        margin-top: 42px;
+        .nav-item:last-child{
+          position: absolute;
+          top: 25px;
+          right: 10px;
+        }
+      }
+    }
+  }
+}
+@media screen and (min-width: 526px)  {
+  .logo_desktop{
+    display: inline-block;
+  }
+  .logo_mobile{
+    display: none;
+  }
+}
 @media screen and (max-width: 768px) {
   .navbar{
-    height: 90px;
+    height: 110px;
+    padding: .1rem 1.1rem;
     #navbarNav{
       #navbar-nav{
         float: none;
@@ -89,16 +122,8 @@ body{ margin : 0 }
       img{
         float: none;
         margin-bottom: 5px;
+        max-width: 66%;
       }
-    }
-  }
-}
-@media screen and (max-width: 768px) {
-  .navbar{
-    height: 110px;
-    padding: .1rem 1.1rem;
-    img{
-      max-width: 66%;
     }
   }
 }
