@@ -37,7 +37,10 @@
                 <li>
                   Nom :  {{ name }}
                 </li>
-                <li>
+                <li v-if="service == 'null'">
+                  Du service : Non-renseigné
+                </li>
+                <li v-else>
                   Du service :  {{ service }}
                 </li>
               </ul>

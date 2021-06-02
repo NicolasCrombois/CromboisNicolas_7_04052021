@@ -29,7 +29,6 @@ exports.signup = (req, res, next) => {
         }else{
             bcrypt.hash(xss(req.body.password),10)
             .then(hash => {
-                console.log(xss(req.body.email),  hash, xss(req.body.name), xss(req.body.firstname))
                 User.create({ 
                     id: uuidv4(),
                     mail: xss(req.body.email), 
@@ -115,7 +114,7 @@ exports.delete = (req, res, next) => {
                 })
                 publication.destroy();
             });
-            res.status(200).json("Publication supprimée !");
+            res.status(200).json("Utilisateur supprimé !");
         })
         .catch(error => {
             res.status(401).json({ message: error });

@@ -224,7 +224,7 @@ export default {
     },
     deleteComment: function(commentId){
       axios.defaults.headers.common['Authorization'] = sessionStorage.getItem('user-token');
-      axios.delete('http://localhost:5000/api/comment/delete' + commentId)
+      axios.delete('http://localhost:5000/api/comment/' + commentId)
       .then (() =>{
         this.$router.go(0);
       })
@@ -412,6 +412,7 @@ export default {
             color: red;
             top: 15px;
             right: 15px;
+            cursor: pointer;
           }
           &::before {
             content: "";
