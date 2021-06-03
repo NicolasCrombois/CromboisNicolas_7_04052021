@@ -10,7 +10,7 @@ try {
     console.error('Unable to connect to the database:', error);
 }
 
-
+//Fonction qui permet de publier le commentaire
 exports.publish = (req, res, next) => {
     Comment.create({ 
         id: uuidv4(),
@@ -22,7 +22,7 @@ exports.publish = (req, res, next) => {
     .catch(error => res.status(500).json({ message : error }))
 };
 
-
+//Fonction qui permet supprimer un commentaire
 exports.delete = (req, res, next) => {
     Comment.findOne({
         where : { id: req.params.id }
