@@ -78,6 +78,7 @@ export default {
   },
   methods: {
     deleteUser(){
+      axios.defaults.headers.common['Authorization'] = sessionStorage.getItem('user-token');
       axios.delete('http://localhost:5000/api/auth/'+this.iduser)
       .then(() => {
             this.success_info.push({msg: 'Votre compte a bien été supprimé !<br>Vous allez être déconnecté dans 5 secondes ...'})

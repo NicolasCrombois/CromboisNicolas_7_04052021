@@ -123,9 +123,11 @@ export default {
       await axios.get('http://localhost:5000/api/publication/')
       .then(res => {
         (res.data).forEach(publication => {
-
+          
           var reg = new RegExp("((http://)[a-zA-Z0-9/.]+)+","gi");
-          var replacedText = (publication.content).replace(reg, "<A href='$1' target=_blank>$1</A>");
+          var replacedText = (publication.content).replace(reg, "<a href='$1' target=_blank>$1</a>");
+          reg = new RegExp("((https://)[a-zA-Z0-9/.]+)+","gi");
+          replacedText = (publication.content).replace(reg, "<a href='$1' target=_blank>$1</a>");
           replacedText = replacedText.replace(/(?:\r\n|\r|\n)/g, '<br>');
           publication.content = replacedText;
 
@@ -138,7 +140,9 @@ export default {
             comment.updatedAt = ('0' + dateComment.getDate()).slice(-2) + '/' + ('0' + (dateComment.getMonth()+1)).slice(-2)+'/'+dateComment.getFullYear()+' à '+ dateComment.getHours()+'h'+('0' + dateComment.getMinutes()).slice(-2) ;
 
             var reg = new RegExp("((http://)[a-zA-Z0-9/.]+)+","gi");
-            var replacedText = (comment.content).replace(reg, "<A href='$1' target=_blank>$1</A>");
+            var replacedText = (comment.content).replace(reg, "<a href='$1' target=_blank>$1</a>");
+            reg = new RegExp("((https://)[a-zA-Z0-9/.]+)+","gi");
+            replacedText = (comment.content).replace(reg, "<a href='$1' target=_blank>$1</a>");
             replacedText = replacedText.replace(/(?:\r\n|\r|\n)/g, '<br>');
             comment.content = replacedText;
 
@@ -202,9 +206,9 @@ export default {
       }
     },
     refresh(){
-      this.message = '';
       this.errors = [];
       this.success_info = [];
+      this.message = '';
       this.comment = [];
       this.loadPublications()
       .then(() => {

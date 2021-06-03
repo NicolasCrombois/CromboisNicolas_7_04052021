@@ -64,7 +64,6 @@ import axios from 'axios';
         sessionStorage.setItem('user-name', res.data.userName);
         sessionStorage.setItem('user-firstname', res.data.userFirstname);
         this.$router.push('/');
-        console.log(res.data)
       })
       .catch((error) => {
         if(error.response){
